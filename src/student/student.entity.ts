@@ -9,5 +9,17 @@ export class Student {
   name: string;
 
   @Column()
+  phone: string;
+
+  @Column()
+  address: string;
+
+  @Column()
+  email: string;
+
+  @Column()
   teacher: string;
+  
+  @Column()
+  accountId: string;
 }

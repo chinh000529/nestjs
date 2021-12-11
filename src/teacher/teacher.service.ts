@@ -7,14 +7,14 @@ import { Teacher } from './teacher.entity';
 export class TeacherService {
     constructor(
         @InjectRepository(Teacher)
-        private teachers: Repository<Teacher>,
+        private teacherRepo: Repository<Teacher>,
     ) {}
 
     async getTeachers(): Promise<Teacher[]> {
-        return await this.teachers.find();
+        return await this.teacherRepo.find();
     }
 
     async getTeacherById(teacherId: string): Promise<Teacher> {
-        return await this.teachers.findOne({id: teacherId});
+        return await this.teacherRepo.findOne({id: teacherId});
     }
 }

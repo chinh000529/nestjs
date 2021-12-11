@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateStudentDto, UpdateStudentDto } from "./dto/student.dto";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from './student.entity';
@@ -8,58 +8,47 @@ import { Repository } from 'typeorm';
 export class StudentService {
     constructor(
         @InjectRepository(Student)
-        private students: Repository<Student>,
+        private studentRepo: Repository<Student>,
     ) {}
 
+    // paging
     async getStudents(): Promise<Student[]> {
-        return await this.students.find();
+        return await this.studentRepo.find();
     }
 
     async getStudentById(studentId: string): Promise<Student> {
-        return await this.students.findOne({id: studentId});
+        return await this.studentRepo.findOne({id: studentId});
     }
 
     async createStudent(payload: CreateStudentDto): Promise<Student> {
-        let newStudent = new Student();
-        newStudent = {
-            ...newStudent,
-            ...payload
-        };
-
-        await this.students.save(newStudent);
-
-        return newStudent;
+        const newStudent = this.studentRepo.create(payload);
+        const studentCreated = await this.studentRepo.save(newStudent);
+        return studentCreated;
     }
 
     async updateStudent(studentId: string, payload: UpdateStudentDto): Promise<Student> {
-        let updateStudent = await this.students.findOne({id: studentId});
-        updateStudent = {
-            ...updateStudent,
-            ...payload,
-        };
-        await this.students.save(updateStudent);
-        return updateStudent;        
+        let studentFound = await this.studentRepo.findOne({id: studentId});
+        Object.assign(studentFound, payload);
+        const studentUpdated = await this.studentRepo.save(studentFound);
+        return studentUpdated;        
     }
 
     async deleteStudent(studentId: string): Promise<Student> {
-        let deleteStudent = await this.students.findOne({id: studentId});
-        await this.students.remove(deleteStudent);
-        return deleteStudent;        
+        let studentFound = await this.studentRepo.findOne({id: studentId});
+        await this.studentRepo.remove(studentFound);
+        return studentFound;        
     }
 
     async getStudentsByTeacherId(teacherId: string): Promise<Student[]> {
-        const studentList = await this.students.find({teacher: teacherId}) 
+        const studentList = await this.studentRepo.find({teacher: teacherId}) 
         return studentList;
     }
 
     async updateStudentByTeacherId(teacherId: string, studentId: string, payload: UpdateStudentDto): Promise<Student> {
-        let updateStudent = await this.students.findOne({id: studentId, teacher: teacherId,});
-        updateStudent = {
-            ...updateStudent,
-            ...payload,
-        }
-        await this.students.save(updateStudent);
-        return updateStudent;
+        let studentFound = await this.studentRepo.findOne({id: studentId, teacher: teacherId,});
+        Object.assign(studentFound, payload);
+        const studentUpdated = await this.studentRepo.save(studentFound);
+        return studentUpdated;
 
     }
 }
